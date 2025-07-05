@@ -108,7 +108,7 @@ class CommandeNotifier {
 
   
 
-  // Admin approves order and updates stock
+  // MODIFICATION 13: Updated approveOrder method to track admin approval information
   Future<void> approveOrder(int orderId) async {
     try {
       // Get full order details
@@ -145,11 +145,32 @@ class CommandeNotifier {
             .eq('id', item.produit.id);
       }
 
-      // Mark order as approved
+      // MODIFICATION 14: Get current admin user information
+      final currentUser = client.auth.currentUser;
+      String? adminName;
+      
+      if (currentUser != null) {
+        try {
+          final adminProfile = await client
+              .from('profiles')
+              .select('name, email')
+              .eq('id', currentUser.id)
+              .single();
+          
+          adminName = adminProfile['name'] ?? adminProfile['email'] ?? 'Admin';
+        } catch (e) {
+          print('Error fetching admin profile: $e');
+          adminName = currentUser.email ?? 'Admin';
+        }
+      }
+
+      // MODIFICATION 15: Mark order as approved with admin information
       await client
           .from('commandes')
           .update({
             'is_approved': true,
+            'approved_by': adminName, // Store admin name who approved
+            'approved_at': DateTime.now().toIso8601String(), // Store approval timestamp
             'updated_at': DateTime.now().toIso8601String(),
           })
           .eq('id', orderId);

@@ -4,6 +4,9 @@ class OrderHistory {
   final bool isApproved;
   final double total;
   final List<OrderItem> items;
+  // MODIFICATION 5: Added fields to track admin approval information
+  final String? approvedBy; // Name of the admin who approved the order
+  final DateTime? approvedAt; // Timestamp when the order was approved
 
   OrderHistory({
     required this.id,
@@ -11,6 +14,8 @@ class OrderHistory {
     required this.isApproved,
     required this.total,
     required this.items,
+    this.approvedBy, // MODIFICATION 6: Added to constructor
+    this.approvedAt, // MODIFICATION 7: Added to constructor
   });
 
   factory OrderHistory.empty() => OrderHistory(
@@ -19,6 +24,8 @@ class OrderHistory {
         isApproved: false,
         total: 0.0,
         items: [],
+        approvedBy: null, // MODIFICATION 8: Added to empty factory
+        approvedAt: null, // MODIFICATION 9: Added to empty factory
       );
 
   factory OrderHistory.fromJson(Map<String, dynamic> json) {
@@ -29,6 +36,11 @@ class OrderHistory {
         isApproved: _parseApprovalStatus(json['is_approved']),
         total: _parseDouble(json['total']),
         items: _parseItems(json['items']),
+        // MODIFICATION 10: Parse admin approval information from JSON
+        approvedBy: json['approved_by']?.toString(),
+        approvedAt: json['approved_at'] != null 
+            ? DateTime.tryParse(json['approved_at'].toString())
+            : null,
       );
     } catch (e) {
       print('Error parsing OrderHistory: $e');

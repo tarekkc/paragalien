@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 final orderHistoryProvider = FutureProvider.autoDispose
     .family<List<OrderHistory>, String>((ref, userId) async {
   try {
+    // MODIFICATION 11: Updated query to include admin approval information
     final response = await Supabase.instance.client
         .from('commandes')
         .select('''
@@ -12,6 +13,8 @@ final orderHistoryProvider = FutureProvider.autoDispose
           created_at,
           is_approved,
           total,
+          approved_by,
+          approved_at,
           items:commande_items(
             id,
             produit:produits(
@@ -73,6 +76,7 @@ class OrderModificationNotifier extends StateNotifier<OrderHistory> {
 
   Future<void> _loadOrder() async {
     try {
+      // MODIFICATION 12: Updated query to include admin approval information
       final response = await supabase
           .from('commandes')
           .select('''
@@ -80,6 +84,8 @@ class OrderModificationNotifier extends StateNotifier<OrderHistory> {
             created_at,
             is_approved,
             total,
+            approved_by,
+            approved_at,
             items:commande_items(
               id,
               produit:produits(

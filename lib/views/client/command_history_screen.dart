@@ -108,14 +108,8 @@ class CommandHistoryScreen extends ConsumerWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Chip(
-                  label: Text(
-                    order.isApproved ? 'Approved' : 'Pending',
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  backgroundColor:
-                      order.isApproved ? Colors.green : Colors.orange,
-                ),
+                // MODIFICATION 1: Enhanced status chip to show admin approval info
+                _buildStatusChip(order),
                 Text(
                   '${order.items.length} ${order.items.length == 1 ? 'item' : 'items'}',
                   style: const TextStyle(color: Colors.grey),
@@ -123,6 +117,9 @@ class CommandHistoryScreen extends ConsumerWidget {
               ],
             ),
           ),
+          // MODIFICATION 2: Added admin approval info section
+          if (order.isApproved && order.approvedBy != null)
+            _buildAdminApprovalInfo(order),
           const Divider(),
           if (order.items.isEmpty)
             const Padding(
@@ -155,6 +152,86 @@ class CommandHistoryScreen extends ConsumerWidget {
                     fontSize: 16,
                   ),
                 ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // MODIFICATION 3: New method to build enhanced status chip
+  Widget _buildStatusChip(OrderHistory order) {
+    if (order.isApproved) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Chip(
+            label: Text(
+              'Approved',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.green,
+          ),
+          // Show approval timestamp if available
+          if (order.approvedAt != null)
+            Text(
+              'on ${DateFormat('MMM dd, yyyy').format(order.approvedAt!)}',
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+              ),
+            ),
+        ],
+      );
+    } else {
+      return const Chip(
+        label: Text(
+          'Pending',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.orange,
+      );
+    }
+  }
+
+  // MODIFICATION 4: New method to display admin approval information
+  Widget _buildAdminApprovalInfo(OrderHistory order) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.green.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.green.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.verified,
+            color: Colors.green,
+            size: 20,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Approved by: ${order.approvedBy}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
+                if (order.approvedAt != null)
+                  Text(
+                    'on ${DateFormat('MMM dd, yyyy at hh:mm a').format(order.approvedAt!)}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                  ),
               ],
             ),
           ),
